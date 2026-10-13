@@ -1,7 +1,29 @@
 import datetime
 import os
 import sys
-from typing import List
+from typing import List, Optional, Tuple
+
+
+def parse_arguments(args: List[str]) -> Tuple[List[str], Optional[str]]:
+    directories: List[str] = []
+    file_name: Optional[str] = None
+
+    index = 0
+    while index < len(args):
+        if args[index] == "-d":
+            index += 1
+            while index < len(args) and not args[index].startswith("-"):
+                directories.append(args[index])
+                index += 1
+        elif args[index] == "-f":
+            index += 1
+            if index < len(args) and not args[index].startswith("-"):
+                file_name = args[index]
+                index += 1
+        else:
+            index += 1
+
+    return directories, file_name
 
 
 def create_directories(directories: List[str]) -> str:
@@ -22,28 +44,19 @@ def get_content_lines() -> List[str]:
 
 def write_to_file(file_path: str, lines: List[str]) -> None:
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    file_exists = os.path.exists(file_path) and os.path.getsize(file_path) > 0
+
     with open(file_path, "a") as file:
-        if os.path.getsize(file_path) > 0:
+        if file_exists:
             file.write("\n")
         file.write(f"{timestamp}\n")
-        for index, line in enumerate(lines, start=1):
-            file.write(f"{index} {line}\n")
+        for number, line in enumerate(lines, start=1):
+            file.write(f"{number} {line}\n")
 
 
 def main() -> None:
     args = sys.argv[1:]
-
-    directories = []
-    file_name = None
-
-    if "-d" in args:
-        d_index = args.index("-d")
-        f_index = args.index("-f") if "-f" in args else len(args)
-        directories = args[d_index + 1:f_index]
-
-    if "-f" in args:
-        f_index = args.index("-f")
-        file_name = args[f_index + 1]
+    directories, file_name = parse_arguments(args)
 
     path = ""
     if directories:

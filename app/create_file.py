@@ -1,3 +1,4 @@
+
 import datetime
 import os
 import sys
@@ -19,7 +20,7 @@ def parse_arguments(args: List[str]) -> Tuple[List[str], Optional[str]]:
             index += 1
             if index < len(args) and not args[index].startswith("-"):
                 file_name = args[index]
-                index += 1
+            index += 1
         else:
             index += 1
 
@@ -33,12 +34,14 @@ def create_directories(directories: List[str]) -> str:
 
 
 def get_content_lines() -> List[str]:
-    lines = []
+    lines: List[str] = []
+
     while True:
         line = input("Enter content line: ")
         if line == "stop":
             break
         lines.append(line)
+
     return lines
 
 
@@ -46,21 +49,19 @@ def write_to_file(file_path: str, lines: List[str]) -> None:
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     file_exists = os.path.exists(file_path) and os.path.getsize(file_path) > 0
 
-    with open(file_path, "a") as file:
+    with open(file_path, "a", encoding="utf-8") as file:
         if file_exists:
             file.write("\n")
+
         file.write(f"{timestamp}\n")
         for number, line in enumerate(lines, start=1):
             file.write(f"{number} {line}\n")
 
 
 def main() -> None:
-    args = sys.argv[1:]
-    directories, file_name = parse_arguments(args)
+    directories, file_name = parse_arguments(sys.argv[1:])
 
-    path = ""
-    if directories:
-        path = create_directories(directories)
+    path = create_directories(directories) if directories else ""
 
     if file_name:
         full_path = os.path.join(path, file_name) if path else file_name
@@ -68,5 +69,5 @@ def main() -> None:
         write_to_file(full_path, lines)
 
 
-if __name__ == "__main__":
+if __name__ in ("__main__", "<run_path>"):
     main()
